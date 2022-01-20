@@ -134,3 +134,6 @@ dmypy.json
 # RStudio housekeeping files
 .Rproj.user/
 DFC22.Rproj
+
+# Temporary Jupyter Notebooks
+\[Testing\]*.ipynb
