@@ -137,3 +137,7 @@ DFC22.Rproj
 
 # Temporary Jupyter Notebooks
 \[Testing\]*.ipynb
+
+# Miscellaneous files
+misc/
+
