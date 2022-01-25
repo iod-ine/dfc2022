@@ -140,4 +140,6 @@ DFC22.Rproj
 
 # Miscellaneous files
 misc/
+lightning_logs/
+checkpoints/
 
