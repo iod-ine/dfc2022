@@ -34,4 +34,5 @@ dfc22_labels_palette = {
 }
 
 # this is used to visualize predictions where the prediction is a class index
-dfc22_labels_color_map = torch.FloatTensor(colors_rgb[1:])
+# ground truth masks use -1 for class 0
+dfc22_labels_color_map = torch.FloatTensor(colors_rgb[1:] + colors_rgb[:1])
