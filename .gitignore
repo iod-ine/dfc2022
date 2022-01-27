@@ -134,6 +134,7 @@ dmypy.json
 # RStudio housekeeping files
 .Rproj.user/
 DFC22.Rproj
+.Rhistory
 
 # Temporary Jupyter Notebooks
 \[Testing\]*.ipynb
@@ -142,4 +143,5 @@ DFC22.Rproj
 misc/
 lightning_logs/
 checkpoints/
+predictions*/
 
