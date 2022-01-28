@@ -15,8 +15,7 @@ def test_channel_numbers_in_the_data():
         labeled=True,
     )
 
-    item = dataset[13]
-    image, label = item["image"], item["label"]
+    image, label = dataset[13]
 
     assert image.shape[0] == 4, 'The number of channels in the image is different from 4'
     assert label.shape == image.shape[1:], 'Label shape does not match the image shape'
@@ -30,8 +29,7 @@ def test_returned_dtypes():
         labeled=True,
     )
 
-    item = dataset[13]
-    image, label = item["image"], item["label"]
+    image, label = dataset[13]
 
     assert image.dtype == torch.float
     assert label.dtype == torch.long
@@ -50,8 +48,7 @@ def test_augmentations():
         augmentation=augmentations,
     )
 
-    item = dataset[13]
-    image, label = item['image'], item['label']
+    image, label = dataset[13]
 
     assert image.shape[1:] == (256, 256), 'Incorrect image shape after RandomCrop'
     assert label.shape == (256, 256), 'Incorrect label shape after RandomCrop'
@@ -62,7 +59,7 @@ def test_augmentations():
         augmentation=augmentations,
     )
 
-    image = dataset[13]['image']
+    image = dataset[13]
 
     assert image.shape[1:] == (256, 256), 'Incorrect image shape after RandomCrop'
 
@@ -78,7 +75,6 @@ def test_transforms():
         transform=transform,
     )
 
-    item = dataset[13]
-    image, label = item['image'], item['label']
+    image, label = dataset[13]
 
     assert image == 'it worked :)', 'Transform was not applied to the image'

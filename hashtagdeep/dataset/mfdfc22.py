@@ -109,9 +109,8 @@ class MiniFranceDFC22(torch.utils.data.Dataset):
         if self.transform is not None:
             image = self.transform(image)
 
-        item = {'image': image}
-
         if self.labeled:
-            item['label'] = torch.from_numpy(label)
+            label = torch.from_numpy(label)
+            return image, label
 
-        return item
+        return image

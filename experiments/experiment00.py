@@ -2,7 +2,6 @@
 
 import torch
 import albumentations
-import torch.nn as nn
 import torch.utils.data
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
@@ -40,8 +39,7 @@ class ExperimentSystem(pl.LightningModule):
         return {'optimizer': optimizer, 'lr_scheduler': scheduler}
 
     def training_step(self, batch, batch_idx):
-        x = batch['image']
-        y = batch['label']
+        x, y = batch
         pred = self.forward(x)
         loss = self.loss(pred, y)
         return {'loss': loss}
@@ -52,8 +50,7 @@ class ExperimentSystem(pl.LightningModule):
         self.log('avg_loss/train', avg_train_loss)
 
     def validation_step(self, batch, batch_idx):
-        x = batch['image']
-        y = batch['label']
+        x, y = batch
 
         # split the prediction for a large validation image into parts
         b, _, h, w = x.shape
@@ -116,8 +113,8 @@ class ExperimentSystem(pl.LightningModule):
         """ Before training starts, log the ground truth images for the validation data. """
 
         val_dataloader = self.trainer.datamodule.val_dataloader()
-        tci = torch.cat([x['image'][:, :3, 744:1256, 744:1256] for x in val_dataloader]) / 255
-        masks = torch.cat([x['label'][:, 744:1256, 744:1256] for x in val_dataloader])
+        tci = torch.cat([x[:, :3, 744:1256, 744:1256] for x, y in val_dataloader]) / 255
+        masks = torch.cat([y[:, 744:1256, 744:1256] for x, y in val_dataloader])
 
         masks = visualize.make_image_tensor_for_segmentation_mask(masks, colors.dfc22_labels_color_map)
 
@@ -246,7 +243,7 @@ if __name__ == '__main__':
     trainer = pl.Trainer(
         logger=logger,
         gpus=[0],
-        fast_dev_run=False,
+        fast_dev_run=True,
         max_epochs=300,
         callbacks=[best_val_miou, best_val_recall, best_val_acc, bast_avg_loss],
         # auto_scale_batch_size=True,
