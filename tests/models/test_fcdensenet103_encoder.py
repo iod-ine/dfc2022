@@ -1,16 +1,16 @@
-""" Unit tests for FC-DenseNet103 implementation. """
+""" Unit tests for FC-DenseNet103Encoder implementation. """
 
 import pytest
 import torch
 import torch.nn.functional
 import torch.backends.cudnn
 
-from hashtagdeep.models import FCDenseNet103
+from hashtagdeep.models import FCDenseNet103Encoder
 
 
 @pytest.fixture(scope='function')
 def model():
-    model = FCDenseNet103(in_channels=4, n_classes=10)
+    model = FCDenseNet103Encoder(in_channels=4)
     return model
 
 
@@ -21,9 +21,9 @@ def test_parameters_change_after_learning_step(model):
 
     params_before = [(name, data.detach().clone()) for name, data in model.named_parameters()]
 
-    xx = torch.ones(1, 4, 255, 257)
+    xx = torch.ones(1, 4, 256, 256)
     yy = model(xx)
-    loss = torch.nn.functional.cross_entropy(yy, torch.ones(1, 255, 257, dtype=torch.long))
+    loss = torch.nn.functional.mse_loss(yy, torch.ones(1, 128))
     loss.backward()
     optimizer.step()
 
@@ -38,14 +38,14 @@ def test_loss_decreases_after_learning_step(model):
 
     optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
 
-    xx = torch.ones(1, 4, 255, 257)
+    xx = torch.ones(1, 4, 256, 256)
     yy = model(xx)
-    loss0 = torch.nn.functional.cross_entropy(yy, torch.ones(1, 255, 257, dtype=torch.long))
+    loss0 = torch.nn.functional.mse_loss(yy, torch.ones(1, 128))
     loss0.backward()
     optimizer.step()
 
     yy = model(xx)
-    loss1 = torch.nn.functional.cross_entropy(yy, torch.ones(1, 255, 257, dtype=torch.long))
+    loss1 = torch.nn.functional.mse_loss(yy, torch.ones(1, 128))
 
     assert loss1.item() <= loss0.item(), 'Loss increased after a learning step'
 
@@ -54,9 +54,9 @@ def test_loss_decreases_after_learning_step(model):
 def test_loss_is_not_zero(model):
     """ The loss should never be zero. """
 
-    xx = torch.ones(1, 4, 255, 257)
+    xx = torch.ones(1, 4, 256, 256)
     yy = model(xx)
-    loss = torch.nn.functional.cross_entropy(yy, torch.ones(1, 255, 257, dtype=torch.long))
+    loss = torch.nn.functional.mse_loss(yy, torch.ones(1, 128))
 
     assert loss.item() != 0, f'Loss is zero'
 
@@ -65,25 +65,11 @@ def test_loss_is_not_zero(model):
 def test_logits_output_range(model):
     """ Logits should have values both above and below zero. """
 
-    xx = torch.ones(1, 4, 255, 257)
+    xx = torch.ones(1, 4, 256, 256)
     yy = model(xx)
 
-    assert torch.any(yy.amax(dim=(2, 3)) > 0), 'No positive values in the logit output'
-    assert torch.any(yy.amin(dim=(2, 3)) < 0), 'No negative values in the logit output'
-
-
-@torch.no_grad()
-def test_output_shape(model):
-    """ The shape of the outputs should match the shape of the input. """
-
-    xx0 = torch.ones(2, 4, 255, 257)
-    xx1 = torch.ones(3, 4, 400, 403)
-
-    yy0 = model(xx0)
-    yy1 = model(xx1)
-
-    assert yy0.shape == (2, 10, 255, 257), 'Shape of the output does not match shape of the input'
-    assert yy1.shape == (3, 10, 400, 403), 'Shape of the output does not match shape of the input'
+    assert torch.any(yy.max() > 0), 'No positive values in the logit output'
+    assert torch.any(yy.min() < 0), 'No negative values in the logit output'
 
 
 @torch.no_grad()
@@ -96,7 +82,7 @@ def test_switch_devices(model):
 
     model.eval()
 
-    xx = torch.ones(2, 4, 255, 257)
+    xx = torch.ones(2, 4, 256, 256)
 
     torch.manual_seed(13)
     yy = model(xx)

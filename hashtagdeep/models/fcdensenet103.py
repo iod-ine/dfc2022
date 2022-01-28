@@ -9,17 +9,16 @@ import torch.nn as nn
 import torch.nn.functional
 
 
-# TODO: set bias=False for convolutions
-
-
 class FCDenseNet103(nn.Module):
     """ The FC-DenseNet103 semantic segmentation model as defined in Table 2 of (Jegou et al., 2017). """
 
     def __init__(self, in_channels, n_classes):
         """ Initialize a new FC-DenseNet103.
+
         Args:
             in_channels (int): Number of channels in the input image.
             n_classes (int): Number of semantic segmentation classes.
+
         """
 
         super(FCDenseNet103, self).__init__()
